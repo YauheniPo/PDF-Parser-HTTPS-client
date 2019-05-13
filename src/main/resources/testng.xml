@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+<suite name="pdfparse-popo" parallel="true" thread-count="10">
+
+    <test name="pdf" parallel="methods" thread-count="10">
+        <classes>
+            <class name="popo.pdfparse.app.test.TestPDFParse"/>
+        </classes>
+    </test>
+
+</suite>
