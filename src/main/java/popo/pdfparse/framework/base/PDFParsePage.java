@@ -52,7 +52,11 @@ public class PDFParsePage extends WebPage {
     }
 
     protected synchronized String getPDFContentFromPDFPlugin(String pdfContextElementLocator, String... pdfPluginFrame) {
-        return PDFHelper.getPDFContent(getPDFPluginSrcAttributeUrl(pdfContextElementLocator, pdfPluginFrame));
+        return getPDFContentFromPDFPlugin(byXpath(pdfContextElementLocator), Arrays.stream(pdfPluginFrame).map(Selectors::byXpath).toArray(By[]::new));
+    }
+
+    protected synchronized String getPDFContentFromPDFPlugin(By pdfContextElementSelector, By... pdfPluginFrameSelector) {
+        return PDFHelper.getPDFContent(getPDFPluginSrcAttributeUrl(pdfContextElementSelector, pdfPluginFrameSelector));
     }
 
     protected synchronized List getPDFImagesFromPDFPlugin(String pdfContextElementLocator, String... pdfPluginFrame) {
@@ -61,6 +65,10 @@ public class PDFParsePage extends WebPage {
 
     protected synchronized Map<TextPosition, PDGraphicsState> getTextPositionPDGraphicsStateMap() {
         return PDFHelper.getTextPositionPDGraphicsStateMap();
+    }
+
+    protected synchronized Map<TextPosition, PDGraphicsState> getTextPositionPDGraphicsStateMap(By pdfContextElementSelector, By... pdfPluginFrameSelector) {
+        return PDFHelper.getTextPositionPDGraphicsStateMap(getPDFPluginSrcAttributeUrl(pdfContextElementSelector, pdfPluginFrameSelector));
     }
 
     protected synchronized boolean isContainsPDFAllStrings(String pdfContentFromPDFPlugin, String... data) {

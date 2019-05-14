@@ -21,13 +21,15 @@ public final class Browser {
 
     private static ResourcePropertiesManager rpStage = new ResourcePropertiesManager("stage.properties");
     private static ResourcePropertiesManager rpBrowser = new ResourcePropertiesManager("browser.properties");
+    public static final String STAGE = rpStage.getStringProperty("stage");
+    public static final String URL = rpStage.getStringProperty("urlStage");
     private static final String BROWSER_URL = getStage();
     private static BrowserType currentBrowser = BrowserType.valueOf((System.getenv("browser") == null
             ? rpBrowser.getStringProperty("browser") : ResourcePropertiesManager.getSystemEnvProperty("browser"))
             .toUpperCase(Locale.ENGLISH));
     private static final boolean IS_BROWSER_HEADLESS = rpBrowser.getBooleanProperties("browser.headless");
-    private static Browser instance = null;
     public static final long IMPLICITLY_WAIT = rpBrowser.getLongProperties("browser.timeout");
+    private static Browser instance = null;
 
     public static void getInstance() {
         if (instance == null) {
@@ -78,11 +80,10 @@ public final class Browser {
     }
 
     private static String getStage() {
-        String stage = rpStage.getStringProperty("stage");
-        String url = rpStage.getStringProperty("urlStage");
-        if (url.contains("///")) {
+        String stage = STAGE;
+        if (Objects.requireNonNull(URL).contains("///")) {
             stage = System.getProperty("user.dir") + stage;
         }
-        return String.format(url, stage);
+        return URL + stage;
     }
 }

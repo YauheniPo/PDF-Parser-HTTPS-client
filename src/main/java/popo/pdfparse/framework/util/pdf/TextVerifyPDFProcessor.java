@@ -1,6 +1,8 @@
 package popo.pdfparse.framework.util.pdf;
 
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.graphics.state.PDGraphicsState;
 import org.apache.pdfbox.text.TextPosition;
@@ -11,6 +13,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+@Log4j2
 public class TextVerifyPDFProcessor {
 
     private String[] searchStrings;
@@ -23,7 +26,7 @@ public class TextVerifyPDFProcessor {
         try {
             return verifyPDFContainsAllStrings(pdfContext);
         } catch (Throwable t) {
-            t.printStackTrace();
+            log.fatal(ExceptionUtils.getStackTrace(t));
         }
         return false;
     }
@@ -32,7 +35,7 @@ public class TextVerifyPDFProcessor {
         try {
             return verifyPDFFontForStrings(font, pdfContext, textPositionPDGraphicsStateMap);
         } catch (Throwable t) {
-            t.printStackTrace();
+            log.fatal(ExceptionUtils.getStackTrace(t));
         }
         return false;
     }
@@ -41,7 +44,7 @@ public class TextVerifyPDFProcessor {
         try {
             return verifyPDFContentSizeForStrings(size, pdfContext, textPositionPDGraphicsStateMap);
         } catch (Throwable t) {
-            t.printStackTrace();
+            log.fatal(ExceptionUtils.getStackTrace(t));
         }
         return false;
     }
@@ -50,7 +53,7 @@ public class TextVerifyPDFProcessor {
         try {
             return verifyPDFContentTextTypeForStrings(type, pdfContext, textPositionPDGraphicsStateMap);
         } catch (Throwable t) {
-            t.printStackTrace();
+            log.fatal(ExceptionUtils.getStackTrace(t));
         }
         return false;
     }
@@ -82,7 +85,7 @@ public class TextVerifyPDFProcessor {
                         return false;
                     }
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    log.fatal(ExceptionUtils.getStackTrace(e));
                 }
             }
         }

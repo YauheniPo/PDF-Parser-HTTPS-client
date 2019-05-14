@@ -1,5 +1,7 @@
 package popo.pdfparse.framework.util.pdf;
 
+import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.pdfbox.cos.COSDocument;
 import org.apache.pdfbox.cos.COSName;
 import org.apache.pdfbox.io.RandomAccessBufferedFileInputStream;
@@ -19,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 
+@Log4j2
 public class PDFTextStripperHelper extends PDFTextStripper {
 
     private Map<TextPosition, PDGraphicsState> charactersMap = new LinkedHashMap<>();
@@ -43,7 +46,7 @@ public class PDFTextStripperHelper extends PDFTextStripper {
         try {
             return super.getText(Objects.requireNonNull(getDocument()));
         } catch (IOException e) {
-            e.printStackTrace();
+            log.fatal(ExceptionUtils.getStackTrace(e));
         }
         return null;
     }
@@ -68,7 +71,7 @@ public class PDFTextStripperHelper extends PDFTextStripper {
                     images.add(((PDImageXObject) xObject).getImage());
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                log.fatal(ExceptionUtils.getStackTrace(e));
             }
         }
         return images;
@@ -81,7 +84,7 @@ public class PDFTextStripperHelper extends PDFTextStripper {
             COSDocument cosDoc = pdfParser.getDocument();
             return new PDDocument(cosDoc);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.fatal(ExceptionUtils.getStackTrace(e));
         }
         return null;
     }

@@ -2,7 +2,6 @@ package popo.pdfparse.framework.util.http;
 
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
@@ -28,7 +27,7 @@ public class HttpClient {
     }
 
     public HttpClient setSSLContext() {
-        this.builder.setSSLContext(new TrustAnyTrustManager().getTrustingAllSslContext(SSLConnectionSocketFactory.TLS));
+        this.builder.setSSLContext(new TrustAnyTrustManager().getTrustingAllSslContext());
         return this;
     }
 
