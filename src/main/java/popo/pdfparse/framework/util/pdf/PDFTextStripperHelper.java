@@ -19,15 +19,18 @@ import org.apache.pdfbox.text.TextPosition;
 import java.awt.image.RenderedImage;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
 import java.util.*;
 
 @Log4j2
 public class PDFTextStripperHelper extends PDFTextStripper {
 
     private Map<TextPosition, PDGraphicsState> charactersMap = new LinkedHashMap<>();
+    private String pdfContent;
 
     public PDFTextStripperHelper(InputStream pdfInputStream) throws IOException {
         super.document = getPDDocument(pdfInputStream);
+        super.writeText(super.document, new StringWriter());
     }
 
     public List<List<TextPosition>> getCharactersByArticle() {
@@ -44,11 +47,14 @@ public class PDFTextStripperHelper extends PDFTextStripper {
 
     public String getText() {
         try {
-            return super.getText(Objects.requireNonNull(getDocument()));
+            if (pdfContent == null) {
+                pdfContent = super.getText(Objects.requireNonNull(getDocument()));
+            }
+            return pdfContent;
         } catch (IOException e) {
             log.fatal(ExceptionUtils.getStackTrace(e));
         }
-        return null;
+        return pdfContent;
     }
 
     public synchronized List<RenderedImage> getImagesFromPDF() {
@@ -91,7 +97,9 @@ public class PDFTextStripperHelper extends PDFTextStripper {
 
     @Override
     protected void processTextPosition(TextPosition text) {
-        this.charactersMap.put(text, this.getGraphicsState());
+        if (pdfContent == null) {
+            this.charactersMap.put(text, this.getGraphicsState());
+        }
         super.processTextPosition(text);
     }
 }
