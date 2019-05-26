@@ -7,54 +7,19 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.graphics.state.PDGraphicsState;
 import org.apache.pdfbox.text.TextPosition;
+import popo.pdfparse.framework.util.Verification;
 
 import java.io.IOException;
 import java.util.*;
 
 @Log4j2
 @AllArgsConstructor
-public class TextVerifyPDFProcessor implements Process {
+public class TextVerifyPDFProcessor implements Verification {
 
     private PDFProcessModel model;
 
-    public TextVerifyPDFProcessor(String... searchStrings) {
-        this.model = new PDFProcessModel(searchStrings);
-    }
-
-    public boolean doProcess(String pdfContext) {
-        try {
-            return verifyPDFContainsAllStrings(pdfContext);
-        } catch (Throwable t) {
-            log.fatal(ExceptionUtils.getStackTrace(t));
-        }
-        return false;
-    }
-
-    public boolean doProcess(PDFFontType font, String pdfContext, Map<TextPosition, PDGraphicsState> textPositionPDGraphicsStateMap) {
-        try {
-            return verifyPDFFontForStrings(font, pdfContext, textPositionPDGraphicsStateMap);
-        } catch (Throwable t) {
-            log.fatal(ExceptionUtils.getStackTrace(t));
-        }
-        return false;
-    }
-
-    public boolean doProcess(int size, String pdfContext, Map<TextPosition, PDGraphicsState> textPositionPDGraphicsStateMap) {
-        try {
-            return verifyPDFContentSizeForStrings(size, pdfContext, textPositionPDGraphicsStateMap);
-        } catch (Throwable t) {
-            log.fatal(ExceptionUtils.getStackTrace(t));
-        }
-        return false;
-    }
-
-    public boolean doProcess(PDFTextType type, String pdfContext, Map<TextPosition, PDGraphicsState> textPositionPDGraphicsStateMap) {
-        try {
-            return verifyPDFContentTextTypeForStrings(type, pdfContext, textPositionPDGraphicsStateMap);
-        } catch (Throwable t) {
-            log.fatal(ExceptionUtils.getStackTrace(t));
-        }
-        return false;
+    private boolean verifyPDFContainsAllStrings(PDFHelper pdfHelper) {
+        return verifyPDFContainsAllStrings(pdfHelper.getPDFContent());
     }
 
     private boolean verifyPDFContainsAllStrings(String pdfContext) {
@@ -67,6 +32,10 @@ public class TextVerifyPDFProcessor implements Process {
             }
         }
         return true;
+    }
+
+    private boolean verifyPDFFontForStrings(PDFFontType font, PDFHelper pdfHelper) {
+        return verifyPDFFontForStrings(font, pdfHelper.getPDFContent(), pdfHelper.getTextPositionPDGraphicsStateMap());
     }
 
     private boolean verifyPDFFontForStrings(PDFFontType font, String pdfContext, Map<TextPosition, PDGraphicsState> graphicsStateMap) {
@@ -91,6 +60,10 @@ public class TextVerifyPDFProcessor implements Process {
         return true;
     }
 
+    private boolean verifyPDFContentSizeForStrings(int size, PDFHelper pdfHelper) {
+        return verifyPDFContentSizeForStrings(size, pdfHelper.getPDFContent(), pdfHelper.getTextPositionPDGraphicsStateMap());
+    }
+
     private boolean verifyPDFContentSizeForStrings(int size, String pdfContext, Map<TextPosition, PDGraphicsState> graphicsStateMap) {
         String pdfContentWithoutSpecialSymbols = getCleanPDFContent(pdfContext);
         Map<TextPosition, PDGraphicsState> textPositionPDGraphicsStateMap = getCleanTextPositionPdGraphicsStateMap(graphicsStateMap);
@@ -107,6 +80,10 @@ public class TextVerifyPDFProcessor implements Process {
             }
         }
         return true;
+    }
+
+    private boolean verifyPDFContentTextTypeForStrings(PDFTextType type, PDFHelper pdfHelper) {
+        return verifyPDFContentTextTypeForStrings(type, pdfHelper.getPDFContent(), pdfHelper.getTextPositionPDGraphicsStateMap());
     }
 
     private boolean verifyPDFContentTextTypeForStrings(PDFTextType type, String pdfContext, Map<TextPosition, PDGraphicsState> graphicsStateMap) {
@@ -142,13 +119,27 @@ public class TextVerifyPDFProcessor implements Process {
     }
 
     @Override
-    public Map<Boolean, String> doProcess(PDFHelper pdfHelper, PDFProcessModel model) {
+    public Map<Boolean, String> doProcess(Object helper) {
+        PDFHelper pdfHelper = (PDFHelper) helper;
         Map<Boolean, String> validateResultsMap = new HashMap<>();
         try {
-            if (verifyPDFContainsAllStrings(pdfHelper.getPDFContent())) {
-
-            } else {
-
+            validateResultsMap.put(verifyPDFContainsAllStrings(pdfHelper),
+                    String.format("PDF content '%s' does not contains data '%s'",
+                            pdfHelper.getPDFContent(), Arrays.toString(this.model.getSearchStrings())));
+            if (this.model.getFont() != null) {
+                validateResultsMap.put(verifyPDFFontForStrings(this.model.getFont(), pdfHelper),
+                        String.format("PDF content does not contains data '%s' of font '%s'",
+                                Arrays.toString(this.model.getSearchStrings()), this.model.getFont()));
+            }
+            if (this.model.getSize() != null) {
+                validateResultsMap.put(verifyPDFContentSizeForStrings(this.model.getSize(), pdfHelper),
+                        String.format("PDF content does not contains data '%s' of size '%s'",
+                                Arrays.toString(this.model.getSearchStrings()), this.model.getSize().toString()));
+            }
+            if (this.model.getType() != null) {
+                validateResultsMap.put(verifyPDFContentTextTypeForStrings(this.model.getType(), pdfHelper),
+                        String.format("PDF content does not contains data '%s' of type '%s'",
+                                Arrays.toString(this.model.getSearchStrings()), this.model.getType()));
             }
         } catch (Throwable t) {
             log.fatal(ExceptionUtils.getStackTrace(t));

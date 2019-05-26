@@ -12,5 +12,4 @@ public class PDFViewerPage extends PDFParsePage {
     public PDFHelper getPDFHelper() {
         return super.getPDFHelper(pdfContentSelector);
     }
-
 }

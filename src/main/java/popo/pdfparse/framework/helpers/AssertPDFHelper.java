@@ -9,7 +9,7 @@ public class AssertPDFHelper {
 
     public void assertPDF(PDFHelper pdfHelper, PDFProcessModel model) {
         SoftAssert softAssert = new SoftAssert();
-        new TextVerifyPDFProcessor().doProcess(pdfHelper, model).forEach(softAssert::assertTrue);
+        new TextVerifyPDFProcessor(model).doProcess(pdfHelper).forEach(softAssert::assertTrue);
         softAssert.assertAll();
     }
 }

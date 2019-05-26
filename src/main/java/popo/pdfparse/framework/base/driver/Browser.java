@@ -3,8 +3,10 @@ package popo.pdfparse.framework.base.driver;
 import com.codeborne.selenide.Configuration;
 import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.WebDriverRunner;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.cookie.BasicClientCookie;
@@ -17,6 +19,7 @@ import java.util.Objects;
 import java.util.Set;
 
 @Log4j2
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class Browser {
 
     private static ResourcePropertiesManager rpStage = new ResourcePropertiesManager("stage.properties");
@@ -29,13 +32,17 @@ public final class Browser {
             .toUpperCase(Locale.ENGLISH));
     private static final boolean IS_BROWSER_HEADLESS = rpBrowser.getBooleanProperties("browser.headless");
     public static final long IMPLICITLY_WAIT = rpBrowser.getLongProperties("browser.timeout");
-    private static Browser instance = null;
+    private static volatile Browser instance = null;
 
     public static void getInstance() {
-        if (instance == null) {
+        Browser localBrowser = instance;
+        if (localBrowser == null) {
             synchronized (Browser.class) {
-                instance = new Browser();
-                initDriverConfigs();
+                localBrowser = instance;
+                if (localBrowser == null) {
+                    instance = new Browser();
+                    initDriverConfigs();
+                }
             }
         }
     }
