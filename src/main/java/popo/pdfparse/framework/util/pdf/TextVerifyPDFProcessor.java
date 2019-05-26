@@ -1,5 +1,6 @@
 package popo.pdfparse.framework.util.pdf;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -8,18 +9,16 @@ import org.apache.pdfbox.pdmodel.graphics.state.PDGraphicsState;
 import org.apache.pdfbox.text.TextPosition;
 
 import java.io.IOException;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Log4j2
-public class TextVerifyPDFProcessor {
+@AllArgsConstructor
+public class TextVerifyPDFProcessor implements Process {
 
-    private String[] searchStrings;
+    private PDFProcessModel model;
 
     public TextVerifyPDFProcessor(String... searchStrings) {
-        this.searchStrings = searchStrings;
+        this.model = new PDFProcessModel(searchStrings);
     }
 
     public boolean doProcess(String pdfContext) {
@@ -61,7 +60,7 @@ public class TextVerifyPDFProcessor {
     private boolean verifyPDFContainsAllStrings(String pdfContext) {
         String normalizedReportString = StringUtils.deleteWhitespace(pdfContext);
 
-        for (String aSearchString : searchStrings) {
+        for (String aSearchString : this.model.getSearchStrings()) {
             String searchString = StringUtils.deleteWhitespace(aSearchString);
             if (!StringUtils.containsIgnoreCase(normalizedReportString, searchString)) {
                 return false;
@@ -74,12 +73,12 @@ public class TextVerifyPDFProcessor {
         String pdfContentWithoutSpecialSymbols = getCleanPDFContent(pdfContext);
         Map<TextPosition, PDGraphicsState> textPositionPDGraphicsStateMap = getCleanTextPositionPdGraphicsStateMap(graphicsStateMap);
         List<TextPosition> textPositions = new LinkedList<>(textPositionPDGraphicsStateMap.keySet());
-        for (String searchString : searchStrings) {
+        for (String searchString : this.model.getSearchStrings()) {
             String validateText = StringUtils.deleteWhitespace(searchString);
             int validationPdfTextLength = validateText.length();
             int startTextIndex = pdfContentWithoutSpecialSymbols.indexOf(validateText);
 
-            for (int i = startTextIndex; i < startTextIndex + validationPdfTextLength; ++i) {
+            for (int i = startTextIndex, n = startTextIndex + validationPdfTextLength; i < n; ++i) {
                 try {
                     if (!((PDType1Font) textPositions.get(i).getFont()).getFontBoxFont().getName().equals(font.getFontTypeName())) {
                         return false;
@@ -96,12 +95,12 @@ public class TextVerifyPDFProcessor {
         String pdfContentWithoutSpecialSymbols = getCleanPDFContent(pdfContext);
         Map<TextPosition, PDGraphicsState> textPositionPDGraphicsStateMap = getCleanTextPositionPdGraphicsStateMap(graphicsStateMap);
         List<TextPosition> textPositions = new LinkedList<>(textPositionPDGraphicsStateMap.keySet());
-        for (String searchString : searchStrings) {
+        for (String searchString : this.model.getSearchStrings()) {
             String validateText = StringUtils.deleteWhitespace(searchString);
             int validationPdfTextLength = validateText.length();
             int startTextIndex = pdfContentWithoutSpecialSymbols.indexOf(validateText);
 
-            for (int i = startTextIndex; i < startTextIndex + validationPdfTextLength; ++i) {
+            for (int i = startTextIndex, n = startTextIndex + validationPdfTextLength; i < n; ++i) {
                 if (textPositions.get(i).getFontSizeInPt() != size) {
                     return false;
                 }
@@ -114,12 +113,12 @@ public class TextVerifyPDFProcessor {
         String pdfContentWithoutSpecialSymbols = getCleanPDFContent(pdfContext);
         Map<TextPosition, PDGraphicsState> textPositionPdGraphicsStateMap = getCleanTextPositionPdGraphicsStateMap(graphicsStateMap);
         List<TextPosition> textPositions = new LinkedList<>(textPositionPdGraphicsStateMap.keySet());
-        for (String searchString : searchStrings) {
+        for (String searchString : this.model.getSearchStrings()) {
             String validateText = StringUtils.deleteWhitespace(searchString);
             int validationPdfTextLength = validateText.length();
             int startTextIndex = pdfContentWithoutSpecialSymbols.indexOf(validateText);
 
-            for (int i = startTextIndex; i < startTextIndex + validationPdfTextLength; ++i) {
+            for (int i = startTextIndex, n = startTextIndex + validationPdfTextLength; i < n; ++i) {
                 if (!textPositionPdGraphicsStateMap.get(textPositions.get(i)).getTextState().getRenderingMode().name().equals(type.getTextType())) {
                     return false;
                 }
@@ -140,5 +139,20 @@ public class TextVerifyPDFProcessor {
 
     private String getCleanPDFContent(String pdfContext) {
         return StringUtils.deleteWhitespace(pdfContext.replaceAll("[\\r\\n]", ""));
+    }
+
+    @Override
+    public Map<Boolean, String> doProcess(PDFHelper pdfHelper, PDFProcessModel model) {
+        Map<Boolean, String> validateResultsMap = new HashMap<>();
+        try {
+            if (verifyPDFContainsAllStrings(pdfHelper.getPDFContent())) {
+
+            } else {
+
+            }
+        } catch (Throwable t) {
+            log.fatal(ExceptionUtils.getStackTrace(t));
+        }
+        return validateResultsMap;
     }
 }
