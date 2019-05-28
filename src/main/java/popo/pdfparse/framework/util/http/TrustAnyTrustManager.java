@@ -12,7 +12,7 @@ import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
 
 @Log4j2
-public class TrustAnyTrustManager {
+class TrustAnyTrustManager {
 
     private static final TrustManager[] TRUST_ALL_MANAGER = new TrustManager[]{new X509TrustManager() {
 

@@ -25,6 +25,10 @@ public class PDFHelper {
 
     private static PDFTextStripperHelper pdfTextStripperHelper;
 
+    public PDFHelper(String url) {
+        fetchPDFTextStripperHelper(url);
+    }
+
     private synchronized static void fetchPDFTextStripperHelper(String urlStr) {
         InputStream inputStreamContent = null;
         if (urlStr.contains(Browser.URL)) {
@@ -55,22 +59,19 @@ public class PDFHelper {
         }
     }
 
-    public synchronized static String getPDFContent(String urlStr) {
-        fetchPDFTextStripperHelper(urlStr);
+    public String getPDFContent() {
         return Objects.requireNonNull(pdfTextStripperHelper).getText();
     }
 
-    public synchronized static Map<TextPosition, PDGraphicsState> getTextPositionPDGraphicsStateMap() {
+    public Map<TextPosition, PDGraphicsState> getTextPositionPDGraphicsStateMap() {
         return Objects.requireNonNull(pdfTextStripperHelper).getCharactersMap();
     }
 
-    public synchronized static Map<TextPosition, PDGraphicsState> getTextPositionPDGraphicsStateMap(String urlStr) {
-        fetchPDFTextStripperHelper(urlStr);
+    public Map<TextPosition, PDGraphicsState> getTextPositionPDGraphicsStateMap(String urlStr) {
         return getTextPositionPDGraphicsStateMap();
     }
 
-    public synchronized static List<RenderedImage> getPDFImages(String urlStr) {
-        fetchPDFTextStripperHelper(urlStr);
+    public List<RenderedImage> getPDFImages() {
         return Objects.requireNonNull(pdfTextStripperHelper).getImagesFromPDF();
     }
 }
