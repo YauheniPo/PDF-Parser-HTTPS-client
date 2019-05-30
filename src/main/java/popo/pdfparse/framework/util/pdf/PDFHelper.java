@@ -33,7 +33,8 @@ public class PDFHelper {
         InputStream inputStreamContent = null;
         if (urlStr.contains(Browser.URL)) {
             try {
-                inputStreamContent = new FileInputStream(new String(URLDecoder.decode(urlStr.replace(Browser.URL, ""), "UTF-8").getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
+                inputStreamContent = new FileInputStream(new String(URLDecoder.decode(
+                        urlStr.replace(Browser.URL, ""), "UTF-8").getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
             } catch (FileNotFoundException | UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
@@ -65,10 +66,6 @@ public class PDFHelper {
 
     public Map<TextPosition, PDGraphicsState> getTextPositionPDGraphicsStateMap() {
         return Objects.requireNonNull(pdfTextStripperHelper).getCharactersMap();
-    }
-
-    public Map<TextPosition, PDGraphicsState> getTextPositionPDGraphicsStateMap(String urlStr) {
-        return getTextPositionPDGraphicsStateMap();
     }
 
     public List<RenderedImage> getPDFImages() {

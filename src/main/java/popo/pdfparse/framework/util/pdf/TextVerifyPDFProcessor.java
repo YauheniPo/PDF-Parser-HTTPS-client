@@ -7,6 +7,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.graphics.state.PDGraphicsState;
 import org.apache.pdfbox.text.TextPosition;
+import popo.pdfparse.framework.helpers.DataUtils;
 import popo.pdfparse.framework.util.Verification;
 
 import java.io.IOException;
@@ -86,6 +87,15 @@ public class TextVerifyPDFProcessor implements Verification {
         return verifyPDFContentTextTypeForStrings(type, pdfHelper.getPDFContent(), pdfHelper.getTextPositionPDGraphicsStateMap());
     }
 
+    private boolean verifyPDFImages(List<byte[]> expectedImages, PDFHelper pdfHelper) {
+        List<byte[]> actualImages = DataUtils.convertImagesToBytes(pdfHelper.getPDFImages());
+        if (expectedImages.size() == 0 && actualImages.size() == 0) {
+            log.fatal(ExceptionUtils.getStackTrace(new AssertionError(
+                    String.format("Images not found: actual list = %d; expected list = %d", actualImages.size(), expectedImages.size()))));
+        }
+        return expectedImages.containsAll(actualImages);
+    }
+
     private boolean verifyPDFContentTextTypeForStrings(PDFTextType type, String pdfContext, Map<TextPosition, PDGraphicsState> graphicsStateMap) {
         String pdfContentWithoutSpecialSymbols = getCleanPDFContent(pdfContext);
         Map<TextPosition, PDGraphicsState> textPositionPdGraphicsStateMap = getCleanTextPositionPdGraphicsStateMap(graphicsStateMap);
@@ -123,9 +133,11 @@ public class TextVerifyPDFProcessor implements Verification {
         PDFHelper pdfHelper = (PDFHelper) helper;
         Map<Boolean, String> validateResultsMap = new HashMap<>();
         try {
-            validateResultsMap.put(verifyPDFContainsAllStrings(pdfHelper),
-                    String.format("PDF content '%s' does not contains data '%s'",
-                            pdfHelper.getPDFContent(), Arrays.toString(this.model.getSearchStrings())));
+            if (this.model.getSearchStrings() != null) {
+                validateResultsMap.put(verifyPDFContainsAllStrings(pdfHelper),
+                        String.format("PDF content '%s' does not contains data '%s'",
+                                pdfHelper.getPDFContent(), Arrays.toString(this.model.getSearchStrings())));
+            }
             if (this.model.getFont() != null) {
                 validateResultsMap.put(verifyPDFFontForStrings(this.model.getFont(), pdfHelper),
                         String.format("PDF content does not contains data '%s' of font '%s'",
@@ -140,6 +152,10 @@ public class TextVerifyPDFProcessor implements Verification {
                 validateResultsMap.put(verifyPDFContentTextTypeForStrings(this.model.getType(), pdfHelper),
                         String.format("PDF content does not contains data '%s' of type '%s'",
                                 Arrays.toString(this.model.getSearchStrings()), this.model.getType()));
+            }
+            if (this.model.getImages() != null) {
+                validateResultsMap.put(verifyPDFImages(this.model.getImages(), pdfHelper),
+                        "PDF images does not contains expected images");
             }
         } catch (Throwable t) {
             log.fatal(ExceptionUtils.getStackTrace(t));
