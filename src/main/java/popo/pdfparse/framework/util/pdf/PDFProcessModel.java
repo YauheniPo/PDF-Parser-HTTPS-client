@@ -4,6 +4,7 @@ import lombok.Getter;
 import org.apache.pdfbox.pdmodel.graphics.state.PDGraphicsState;
 import org.apache.pdfbox.text.TextPosition;
 
+import java.util.List;
 import java.util.Map;
 
 @Getter
@@ -14,9 +15,14 @@ public class PDFProcessModel {
     private Integer size;
     private PDFTextType type;
     private String[] searchStrings;
+    private List<byte[]> images;
 
     public PDFProcessModel(String... searchStrings) {
         this.searchStrings = searchStrings;
+    }
+
+    public PDFProcessModel(List<byte[]> images) {
+        this.images = images;
     }
 
     public PDFProcessModel(PDFFontType font, Map<TextPosition, PDGraphicsState> textPositionPDGraphicsStateMap, String... searchStrings) {
