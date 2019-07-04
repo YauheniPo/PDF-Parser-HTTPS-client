@@ -39,7 +39,7 @@ public class WebPage extends BaseEntity {
     }
 
     protected WebElement getElementFromIFrame(By iFrameSelector, By elementSelector) {
-        new WebDriverWait(getWebDriver(), 10)
+        new WebDriverWait(getWebDriver(), Browser.TIMEOUT)
                 .ignoring(StaleElementReferenceException.class, WebDriverException.class)
                 .until(new ExpectedCondition<Boolean>() {
 

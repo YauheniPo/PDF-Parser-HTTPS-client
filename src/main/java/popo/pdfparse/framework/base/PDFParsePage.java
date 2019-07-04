@@ -13,12 +13,12 @@ import static com.codeborne.selenide.Selectors.byXpath;
 @Log4j2
 public class PDFParsePage extends WebPage {
 
-    protected String getPDFPluginSrcAttributeUrl(String pdfContextElementLocator, String... pdfPluginFrame) {
+    protected synchronized String getPDFPluginSrcAttributeUrl(String pdfContextElementLocator, String... pdfPluginFrame) {
         By[] pdfPluginFrameSelector = Arrays.stream(pdfPluginFrame).map(Selectors::byXpath).toArray(By[]::new);
         return getPDFPluginSrcAttributeUrl(byXpath(pdfContextElementLocator), pdfPluginFrameSelector);
     }
 
-    protected String getPDFPluginSrcAttributeUrl(By pdfContextElementSelector, By... pdfPluginFrame) {
+    protected synchronized String getPDFPluginSrcAttributeUrl(By pdfContextElementSelector, By... pdfPluginFrame) {
         String pdfContentSrcUrl;
         String parentWindow = getParentWindowHandle();
         boolean isChildWindow = isExistChildWindowAfterWait(parentWindow);
@@ -29,13 +29,15 @@ public class PDFParsePage extends WebPage {
         } else {
             pdfContentSrcUrl = getPDFPluginSrcAttributeUrl(
                     pdfPluginFrame.length == 0 ? null : pdfPluginFrame[0], pdfContextElementSelector);
-            switchToDefaultFrame();
         }
+        switchToDefaultFrame();
         return pdfContentSrcUrl;
     }
 
     private synchronized String getPDFPluginSrcAttributeUrl(String iFrameReportViewerLocator, String elementLocator) {
-        return getPDFPluginSrcAttributeUrl(byXpath(iFrameReportViewerLocator), byXpath(elementLocator));
+        return getPDFPluginSrcAttributeUrl(
+                iFrameReportViewerLocator == null ? null : byXpath(iFrameReportViewerLocator),
+                byXpath(elementLocator));
     }
 
     private synchronized String getPDFPluginSrcAttributeUrl(By iFrameReportViewerSelector, By elementSelector) {

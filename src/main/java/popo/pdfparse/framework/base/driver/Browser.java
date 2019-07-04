@@ -31,7 +31,8 @@ public final class Browser {
             ? rpBrowser.getStringProperty("browser") : ResourcePropertiesManager.getSystemEnvProperty("browser"))
             .toUpperCase(Locale.ENGLISH));
     private static final boolean IS_BROWSER_HEADLESS = rpBrowser.getBooleanProperties("browser.headless");
-    public static final long IMPLICITLY_WAIT = rpBrowser.getLongProperties("browser.timeout");
+    public static final long IMPLICITLY_WAIT = rpBrowser.getLongProperties("browser.implicitly.wait");
+    public static final long TIMEOUT = rpBrowser.getLongProperties("browser.timeout");
     private static volatile Browser instance = null;
 
     public static void getInstance() {
