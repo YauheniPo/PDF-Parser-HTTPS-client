@@ -11,6 +11,7 @@ import org.apache.pdfbox.pdmodel.graphics.state.PDGraphicsState;
 import org.apache.pdfbox.text.TextPosition;
 import popo.pdfparse.framework.base.driver.Browser;
 import popo.pdfparse.framework.util.http.HttpClient;
+import popo.pdfparse.framework.util.pdf.pdftable.models.ParsedTablePage;
 
 import java.awt.image.RenderedImage;
 import java.io.*;
@@ -62,6 +63,10 @@ public class PDFHelper {
 
     public String getPDFContent() {
         return Objects.requireNonNull(pdfTextStripperHelper).getText();
+    }
+
+    public List<ParsedTablePage> getParsedTablePages() {
+        return Objects.requireNonNull(pdfTextStripperHelper).getParsedTable();
     }
 
     public Map<TextPosition, PDGraphicsState> getTextPositionPDGraphicsStateMap() {

@@ -9,9 +9,11 @@ import org.apache.pdfbox.pdmodel.graphics.state.PDGraphicsState;
 import org.apache.pdfbox.text.TextPosition;
 import popo.pdfparse.framework.helpers.DataUtils;
 import popo.pdfparse.framework.util.Verification;
+import popo.pdfparse.framework.util.pdf.pdftable.models.ParsedTablePage;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Log4j2
 @AllArgsConstructor
@@ -128,6 +130,88 @@ public class TextVerifyPDFProcessor implements Verification {
         return StringUtils.deleteWhitespace(pdfContext.replaceAll("[\\r\\n]", ""));
     }
 
+    private boolean verifyPDFTable(PDFTableModel pdfTableModel, PDFHelper pdfHelper) {
+        List<ParsedTablePage> parsedTablePages = getOptimizedPDFTableContent(pdfHelper.getParsedTablePages());
+        return true;
+    }
+
+    private Map<Boolean, String> verifyColumnsPDFTable(List<ParsedTablePage> parsedTablePages) {
+        List<ParsedTablePage> pdfTableContent = getCleanPDFTableContent(parsedTablePages);
+        List<String> pdfTableColumns = getPDFTableColumns(pdfTableContent);
+        List<String> columns = Arrays.stream(this.model.getSearchStrings()).map(this::getCleanPDFContent).collect(Collectors.toList());
+        Collections.sort(pdfTableColumns);
+        Collections.sort(columns);
+        return new HashMap<Boolean, String>() {{
+            put(pdfTableColumns.equals(columns),
+                    String.format("Columns from PDF table: %s; Expected columns of PDF table: %s", pdfTableColumns.toString(), columns.toString()));
+        }};
+    }
+
+    private List<String> getPDFTableColumns(List<ParsedTablePage> pdfTableContent) {
+        return pdfTableContent.get(0).getRow(0).getCells().stream().map(this::getCleanPDFContent).collect(Collectors.toList());
+    }
+
+    private Map<Boolean, String> verifyContentColumnPDFTable(String column, List<ParsedTablePage> parsedTablePages) {
+        List<ParsedTablePage> pdfTableContent = getOptimizedPDFTableContent(parsedTablePages);
+        int columnIndex = getColumnIndex(column, getPDFTableColumns(pdfTableContent));
+        removeFirstRowTable(pdfTableContent, 0);
+        String verifyContent = getCleanPDFContent(this.model.getSearchStrings()[0]);
+        Map<Boolean, String> verifyMap = new HashMap<>();
+        pdfTableContent.forEach(page ->
+                page.getRows().forEach(cell -> {
+                    String columnValue = cell.getCell(columnIndex);
+                    if (!columnValue.equals(verifyContent)) {
+                        verifyMap.put(Boolean.FALSE, String.format("Column '%s' has invalid value '%s' on the page number %d",
+                                column, columnValue, pdfTableContent.indexOf(page) + 1));
+                    }
+                }));
+        return verifyMap;
+    }
+
+    private void removeFirstRowTable(List<ParsedTablePage> pdfTableContent, int pageNumber) {
+        pdfTableContent.get(pageNumber).getRows().remove(0);
+    }
+
+    private List<ParsedTablePage> getCleanPDFTableContent(List<ParsedTablePage> parsedTablePages) {
+        for (ParsedTablePage parsedTablePage : parsedTablePages) {
+            for (int iRows = 0; iRows < parsedTablePage.getRows().size(); ++iRows) {
+                boolean isEmptyRow = parsedTablePage.getRows().get(iRows).getCells().stream().allMatch(cell -> cell.equals("\r\n"));
+                if (isEmptyRow) {
+                    parsedTablePage.getRows().remove(iRows);
+                    --iRows;
+                } else {
+                    List<String> cellsContent = parsedTablePage.getRows().get(iRows).getCells();
+                    for (int iCell = 0, cells = cellsContent.size(); iCell < cells; ++iCell) {
+                        cellsContent.set(iCell, getCleanPDFContent(cellsContent.get(iCell)));
+                    }
+                }
+            }
+        }
+        return parsedTablePages;
+    }
+
+    private int getColumnIndex(String column, List<String> columns) {
+        return columns.indexOf(getCleanPDFContent(column));
+    }
+
+    private List<ParsedTablePage> getOptimizedPDFTableContent(List<ParsedTablePage> parsedTablePages) {
+        List<ParsedTablePage> pdfTableContent = getCleanPDFTableContent(parsedTablePages);
+
+        for (int iPages = 1, pages = pdfTableContent.size(); iPages < pages; ++iPages) {
+            removeFirstRowTable(pdfTableContent, iPages);
+            List<String> cellsChildContent = pdfTableContent.get(iPages).getRows().get(0).getCells();
+            boolean isChildRow = cellsChildContent.stream().anyMatch(String::isEmpty);
+            if (isChildRow) {
+                List<String> cellsParentContent = pdfTableContent.get(iPages - 1).getRows().get(pdfTableContent.get(iPages - 1).getRows().size() - 1).getCells();
+                for (int i = 0; i < cellsChildContent.size(); ++i) {
+                    cellsParentContent.set(i, cellsParentContent.get(i) + cellsChildContent.get(i));
+                }
+                removeFirstRowTable(pdfTableContent, iPages);
+            }
+        }
+        return pdfTableContent;
+    }
+
     @Override
     public Map<Boolean, String> doProcess(Object helper) {
         PDFHelper pdfHelper = (PDFHelper) helper;
@@ -140,25 +224,30 @@ public class TextVerifyPDFProcessor implements Verification {
             }
             if (this.model.getFont() != null) {
                 validateResultsMap.put(verifyPDFFontForStrings(this.model.getFont(), pdfHelper),
-                        String.format("PDF content does not contains data '%s' of font '%s'",
+                        String.format("PDF content does not contain data '%s' of font '%s'",
                                 Arrays.toString(this.model.getSearchStrings()), this.model.getFont()));
             }
             if (this.model.getSize() != null) {
                 validateResultsMap.put(verifyPDFContentSizeForStrings(this.model.getSize(), pdfHelper),
-                        String.format("PDF content does not contains data '%s' of size '%s'",
+                        String.format("PDF content does not contain data '%s' of size '%s'",
                                 Arrays.toString(this.model.getSearchStrings()), this.model.getSize().toString()));
             }
             if (this.model.getType() != null) {
                 validateResultsMap.put(verifyPDFContentTextTypeForStrings(this.model.getType(), pdfHelper),
-                        String.format("PDF content does not contains data '%s' of type '%s'",
+                        String.format("PDF content does not contain data '%s' of type '%s'",
                                 Arrays.toString(this.model.getSearchStrings()), this.model.getType()));
             }
             if (this.model.getImages() != null) {
                 validateResultsMap.put(verifyPDFImages(this.model.getImages(), pdfHelper),
-                        "PDF images does not contains expected images");
+                        "PDF images does not contain expected images");
+            }
+            if (this.model.getPdfTableModel() != null) {
+                validateResultsMap.put(verifyPDFTable(this.model.getPdfTableModel(), pdfHelper),
+                        "PDF table does not contain expected columns");
             }
         } catch (Throwable t) {
-            log.fatal(ExceptionUtils.getStackTrace(t));
+            log.fatal(t.getMessage());
+            t.printStackTrace();
         }
         return validateResultsMap;
     }

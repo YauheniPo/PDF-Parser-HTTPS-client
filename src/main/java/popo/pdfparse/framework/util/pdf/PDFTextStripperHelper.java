@@ -15,6 +15,8 @@ import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.apache.pdfbox.pdmodel.graphics.state.PDGraphicsState;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.apache.pdfbox.text.TextPosition;
+import popo.pdfparse.framework.util.pdf.pdftable.PdfTableReader;
+import popo.pdfparse.framework.util.pdf.pdftable.models.ParsedTablePage;
 
 import java.awt.image.RenderedImage;
 import java.io.IOException;
@@ -55,6 +57,16 @@ public class PDFTextStripperHelper extends PDFTextStripper {
             log.fatal(ExceptionUtils.getStackTrace(e));
         }
         return pdfContent;
+    }
+
+    public List<ParsedTablePage> getParsedTable() {
+        List<ParsedTablePage> parsed = null;
+        try {
+            parsed = new PdfTableReader().parsePdfTablePages(super.document, 1, super.document.getNumberOfPages());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return parsed;
     }
 
     public synchronized List<RenderedImage> getImagesFromPDF() {
