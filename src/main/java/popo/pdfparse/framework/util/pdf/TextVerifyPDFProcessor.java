@@ -9,7 +9,10 @@ import org.apache.pdfbox.pdmodel.graphics.state.PDGraphicsState;
 import org.apache.pdfbox.text.TextPosition;
 import popo.pdfparse.framework.helpers.DataUtils;
 import popo.pdfparse.framework.util.Verification;
+import popo.pdfparse.framework.util.pdf.models.PDFProcessModel;
 import popo.pdfparse.framework.util.pdf.pdftable.models.ParsedTablePage;
+import popo.pdfparse.framework.util.pdf.types.PDFFontType;
+import popo.pdfparse.framework.util.pdf.types.PDFTextType;
 
 import java.io.IOException;
 import java.util.*;
@@ -57,6 +60,7 @@ public class TextVerifyPDFProcessor implements Verification {
                     }
                 } catch (IOException e) {
                     log.fatal(ExceptionUtils.getStackTrace(e));
+                    e.printStackTrace();
                 }
             }
         }

@@ -55,6 +55,7 @@ public class PDFTextStripperHelper extends PDFTextStripper {
             return pdfContent;
         } catch (IOException e) {
             log.fatal(ExceptionUtils.getStackTrace(e));
+            e.printStackTrace();
         }
         return pdfContent;
     }
@@ -90,6 +91,7 @@ public class PDFTextStripperHelper extends PDFTextStripper {
                 }
             } catch (IOException e) {
                 log.fatal(ExceptionUtils.getStackTrace(e));
+                e.printStackTrace();
             }
         }
         return images;

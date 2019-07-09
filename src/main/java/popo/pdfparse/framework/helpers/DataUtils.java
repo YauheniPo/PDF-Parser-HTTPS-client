@@ -52,9 +52,10 @@ public class DataUtils {
                 image = ImageIO.read(new File(file));
             } catch (IOException e) {
                 log.fatal(ExceptionUtils.getStackTrace(e));
+                e.printStackTrace();
             }
             if (null == image) {
-                log.fatal(ExceptionUtils.getStackTrace(new NullPointerException("Image not found: " + file)));
+                throw new NullPointerException("Image not found: " + file);
             }
             expectedImages.add(imageToByteArray(image));
         });
@@ -71,6 +72,7 @@ public class DataUtils {
             outputStream.close();
         } catch (IOException e) {
             log.fatal(ExceptionUtils.getStackTrace(e));
+            e.printStackTrace();
         }
         return imageByteArray;
     }

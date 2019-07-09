@@ -39,6 +39,7 @@ class TrustAnyTrustManager {
             return trustingAllSslContext;
         } catch (NoSuchAlgorithmException | KeyManagementException e) {
             log.fatal(ExceptionUtils.getStackTrace(e));
+            e.printStackTrace();
         }
         return null;
     }

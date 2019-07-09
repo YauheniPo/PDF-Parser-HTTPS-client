@@ -51,6 +51,7 @@ public class PDFHelper {
                 }
             } catch (Throwable t) {
                 log.fatal(ExceptionUtils.getStackTrace(t));
+                t.printStackTrace();
             }
         }
         try {
@@ -58,6 +59,7 @@ public class PDFHelper {
             Objects.requireNonNull(inputStreamContent).close();
         } catch (IOException e) {
             log.fatal(ExceptionUtils.getStackTrace(e));
+            e.printStackTrace();
         }
     }
 

@@ -1,4 +1,4 @@
-package popo.pdfparse.framework.util.pdf;
+package popo.pdfparse.framework.util.pdf.types;
 
 public enum PDFFontType {
 

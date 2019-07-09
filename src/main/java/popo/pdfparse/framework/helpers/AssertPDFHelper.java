@@ -2,7 +2,7 @@ package popo.pdfparse.framework.helpers;
 
 import org.testng.asserts.SoftAssert;
 import popo.pdfparse.framework.util.pdf.PDFHelper;
-import popo.pdfparse.framework.util.pdf.PDFProcessModel;
+import popo.pdfparse.framework.util.pdf.models.PDFProcessModel;
 import popo.pdfparse.framework.util.pdf.TextVerifyPDFProcessor;
 
 public class AssertPDFHelper {
