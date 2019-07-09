@@ -1,13 +1,14 @@
 package popo.pdfparse.framework.util.pdf;
 
 import lombok.Builder;
+import lombok.Getter;
 
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.Map;
 
 @Builder
 public class PDFTableModel {
 
-    private LinkedHashMap<String, String> tableValidationMap;
-    private LinkedList<String> columns;
+    @Getter private Map<String, String> tableValidationMap;
+    @Getter private ArrayList<String> columns;
 }

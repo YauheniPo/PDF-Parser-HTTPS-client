@@ -130,15 +130,23 @@ public class TextVerifyPDFProcessor implements Verification {
         return StringUtils.deleteWhitespace(pdfContext.replaceAll("[\\r\\n]", ""));
     }
 
-    private boolean verifyPDFTable(PDFTableModel pdfTableModel, PDFHelper pdfHelper) {
+    private Map<Boolean, String> verifyPDFTable(PDFHelper pdfHelper) {
         List<ParsedTablePage> parsedTablePages = getOptimizedPDFTableContent(pdfHelper.getParsedTablePages());
-        return true;
+        if (this.model.getPdfTableModel().getColumns() != null && !this.model.getPdfTableModel().getColumns().isEmpty()) {
+            return verifyColumnsPDFTable(parsedTablePages);
+        }
+        if (this.model.getPdfTableModel().getTableValidationMap() != null
+                && !this.model.getPdfTableModel().getTableValidationMap().isEmpty()) {
+            return verifyContentColumnPDFTable(parsedTablePages);
+        }
+        log.debug("PDF table validation did not completed");
+        return null;
     }
 
     private Map<Boolean, String> verifyColumnsPDFTable(List<ParsedTablePage> parsedTablePages) {
-        List<ParsedTablePage> pdfTableContent = getCleanPDFTableContent(parsedTablePages);
-        List<String> pdfTableColumns = getPDFTableColumns(pdfTableContent);
-        List<String> columns = Arrays.stream(this.model.getSearchStrings()).map(this::getCleanPDFContent).collect(Collectors.toList());
+        List<String> pdfTableColumns = getPDFTableColumns(parsedTablePages);
+        List<String> columns =
+                this.model.getPdfTableModel().getColumns().stream().map(this::getCleanPDFContent).collect(Collectors.toList());
         Collections.sort(pdfTableColumns);
         Collections.sort(columns);
         return new HashMap<Boolean, String>() {{
@@ -151,20 +159,22 @@ public class TextVerifyPDFProcessor implements Verification {
         return pdfTableContent.get(0).getRow(0).getCells().stream().map(this::getCleanPDFContent).collect(Collectors.toList());
     }
 
-    private Map<Boolean, String> verifyContentColumnPDFTable(String column, List<ParsedTablePage> parsedTablePages) {
-        List<ParsedTablePage> pdfTableContent = getOptimizedPDFTableContent(parsedTablePages);
-        int columnIndex = getColumnIndex(column, getPDFTableColumns(pdfTableContent));
-        removeFirstRowTable(pdfTableContent, 0);
-        String verifyContent = getCleanPDFContent(this.model.getSearchStrings()[0]);
+    private Map<Boolean, String> verifyContentColumnPDFTable(List<ParsedTablePage> parsedTablePages) {
+        removeFirstRowTable(parsedTablePages, 0);
         Map<Boolean, String> verifyMap = new HashMap<>();
-        pdfTableContent.forEach(page ->
-                page.getRows().forEach(cell -> {
-                    String columnValue = cell.getCell(columnIndex);
-                    if (!columnValue.equals(verifyContent)) {
-                        verifyMap.put(Boolean.FALSE, String.format("Column '%s' has invalid value '%s' on the page number %d",
-                                column, columnValue, pdfTableContent.indexOf(page) + 1));
-                    }
-                }));
+        for (Map.Entry<String, String> entry : this.model.getPdfTableModel().getTableValidationMap().entrySet()) {
+            String column = entry.getKey();
+            String verifyContent = getCleanPDFContent(entry.getKey());
+            int columnIndex = getColumnIndex(column, getPDFTableColumns(parsedTablePages));
+            parsedTablePages.forEach(page ->
+                    page.getRows().forEach(cell -> {
+                        String columnValue = cell.getCell(columnIndex);
+                        if (!columnValue.equals(verifyContent)) {
+                            verifyMap.put(Boolean.FALSE, String.format("Column '%s' has invalid value '%s' on the page number %d",
+                                    column, columnValue, parsedTablePages.indexOf(page) + 1));
+                        }
+                    }));
+        }
         return verifyMap;
     }
 
@@ -242,11 +252,10 @@ public class TextVerifyPDFProcessor implements Verification {
                         "PDF images does not contain expected images");
             }
             if (this.model.getPdfTableModel() != null) {
-                validateResultsMap.put(verifyPDFTable(this.model.getPdfTableModel(), pdfHelper),
-                        "PDF table does not contain expected columns");
+                validateResultsMap.putAll(Objects.requireNonNull(verifyPDFTable(pdfHelper)));
             }
         } catch (Throwable t) {
-            log.fatal(t.getMessage());
+            log.fatal(t);
             t.printStackTrace();
         }
         return validateResultsMap;

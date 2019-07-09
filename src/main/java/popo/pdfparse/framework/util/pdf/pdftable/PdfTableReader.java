@@ -1,6 +1,5 @@
 package popo.pdfparse.framework.util.pdf.pdftable;
 
-import com.google.common.io.Resources;
 import lombok.extern.log4j.Log4j2;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
@@ -13,9 +12,8 @@ import popo.pdfparse.framework.util.pdf.pdftable.models.ParsedTablePage;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -31,12 +29,7 @@ public class PdfTableReader {
     private PdfTableSettings settings;
 
     static {
-        try {
-            System.load(URLDecoder.decode(Resources.getResource("opencv_dll/opencv_java346.dll").getFile(), "UTF-8"));
-        } catch (UnsupportedEncodingException e) {
-            log.fatal(e.getMessage());
-            e.printStackTrace();
-        }
+        System.load(Paths.get(System.getProperty("user.dir"), "src", "main", "resources", "opencv_dll").toString() + File.separator + "opencv_java346.dll");
     }
 
     public PdfTableReader(PdfTableSettings settings) {
@@ -123,6 +116,7 @@ public class PdfTableReader {
             synchronized (this) {
                 bi = renderer.renderImageWithDPI(page, settings.getPdfRenderingDpi(), ImageType.RGB);
             }
+            log.info(String.format("Parsing of page %d", page + 1));
             ParsedTablePage parsedTablePage = parsePdfTablePage(bi, document.getPage(page), page + 1);
             out.add(parsedTablePage);
         }

@@ -12,8 +12,7 @@ import ru.yandex.qatools.allure.annotations.Features;
 import ru.yandex.qatools.allure.annotations.Severity;
 import ru.yandex.qatools.allure.model.SeverityLevel;
 
-import java.util.Collections;
-import java.util.LinkedList;
+import java.util.ArrayList;
 
 @Log4j2
 public class TestPDFParse extends PDFParseTest {
@@ -23,7 +22,13 @@ public class TestPDFParse extends PDFParseTest {
     @Severity(value = SeverityLevel.NORMAL)
     @Test(groups = {TestGroup.PDF_GROUP})
     public void testPDFParse() {
+        ArrayList<String> pdfTableColumns = new ArrayList<String>() {{
+            add("Cell1");
+            add("Cell2");
+            add("Cell3");
+        }};
+
         assertPDFHelper.assertPDF(new PDFViewerPage().getPDFHelper(),
-                PDFProcessModel.builder().pdfTableModel(PDFTableModel.builder().columns(new LinkedList<>(Collections.singleton("Cell1"))).build()).build());
+                PDFProcessModel.builder().pdfTableModel(PDFTableModel.builder().columns(pdfTableColumns).build()).build());
     }
 }

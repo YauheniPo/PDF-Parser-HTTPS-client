@@ -1,15 +1,12 @@
 package popo.pdfparse.framework.util.pdf.pdftable;
 
-import com.google.common.io.Resources;
 import lombok.extern.log4j.Log4j2;
 import org.opencv.core.*;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
+import java.io.File;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -34,12 +31,7 @@ class TableExtractor {
     private PdfTableSettings settings;
 
     static {
-        try {
-            System.load(URLDecoder.decode(Resources.getResource("opencv_dll/opencv_java346.dll").getFile(), "UTF-8"));
-        } catch (UnsupportedEncodingException e) {
-            log.fatal(e.getMessage());
-            e.printStackTrace();
-        }
+        System.load(Paths.get(System.getProperty("user.dir"), "src", "main", "resources", "opencv_dll").toString() + File.separator + "opencv_java346.dll");
     }
 
     public TableExtractor(PdfTableSettings settings) {
@@ -112,9 +104,9 @@ class TableExtractor {
         }
 
         // find contours #2 bounding rectangles
-        for (int i = 0; i < contours2.size(); i++) {
+        for (MatOfPoint matOfPoint : contours2) {
             MatOfPoint2f approxCurve = new MatOfPoint2f();
-            MatOfPoint2f contour2f = new MatOfPoint2f(contours2.get(i).toArray());
+            MatOfPoint2f contour2f = new MatOfPoint2f(matOfPoint.toArray());
             double approxDistance = Imgproc.arcLength(contour2f, true) * settings.getApproxDistScaleFactor();
             Imgproc.approxPolyDP(contour2f, approxCurve, approxDistance, true);
             MatOfPoint points = new MatOfPoint(approxCurve.toArray());
