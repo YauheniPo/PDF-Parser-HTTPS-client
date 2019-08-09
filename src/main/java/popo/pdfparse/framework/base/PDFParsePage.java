@@ -46,6 +46,6 @@ public class PDFParsePage extends WebPage {
     }
 
     protected synchronized PDFHelper getPDFHelper(By pdfContextElementSelector, By... pdfPluginFrameSelector) {
-        return new PDFHelper(getPDFPluginSrcAttributeUrl(pdfContextElementSelector, pdfPluginFrameSelector));
+        return new PDFHelper(getPDFPluginSrcAttributeUrl(pdfContextElementSelector, pdfPluginFrameSelector)).fetchPDFTextStripperHelper();
     }
 }

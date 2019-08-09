@@ -17,11 +17,11 @@ import java.util.ArrayList;
 @Log4j2
 public class TestPDFParse extends PDFParseTest {
 
-    @Description(value = "PDF validation")
-    @Features(value = "PDF parse")
+    @Description(value = "PDF Table validation")
+    @Features(value = "PDF Table parse")
     @Severity(value = SeverityLevel.NORMAL)
     @Test(groups = {TestGroup.PDF_GROUP})
-    public void testPDFParse() {
+    public void testPDFTableParse() {
         ArrayList<String> pdfTableColumns = new ArrayList<String>() {{
             add("Cell1");
             add("Cell2");
@@ -30,5 +30,18 @@ public class TestPDFParse extends PDFParseTest {
 
         assertPDFHelper.assertPDF(new PDFViewerPage().getPDFHelper(),
                 PDFProcessModel.builder().pdfTableModel(PDFTableModel.builder().columns(pdfTableColumns).build()).build());
+    }
+
+    @Description(value = "PDF Content validation")
+    @Features(value = "PDF parse")
+    @Severity(value = SeverityLevel.NORMAL)
+    @Test(groups = {TestGroup.PDF_GROUP})
+    public void testPDFParse() {
+        ArrayList<String> pdfDataContent = new ArrayList<String>() {{
+            add("Row1");
+        }};
+
+        assertPDFHelper.assertPDF(new PDFViewerPage().getPDFHelper(),
+                PDFProcessModel.builder().searchStrings(pdfDataContent).build());
     }
 }

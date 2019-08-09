@@ -18,7 +18,7 @@ public class PDFProcessModel {
     private PDFFontType font;
     private Integer size;
     private PDFTextType type;
-    private String[] searchStrings;
+    private List<String> searchStrings;
     private List<byte[]> images;
     private PDFTableModel pdfTableModel;
 }

@@ -234,22 +234,22 @@ public class TextVerifyPDFProcessor implements Verification {
             if (this.model.getSearchStrings() != null) {
                 validateResultsMap.put(verifyPDFContainsAllStrings(pdfHelper),
                         String.format("PDF content '%s' does not contains data '%s'",
-                                pdfHelper.getPDFContent(), Arrays.toString(this.model.getSearchStrings())));
+                                pdfHelper.getPDFContent(), this.model.getSearchStrings()));
             }
             if (this.model.getFont() != null) {
                 validateResultsMap.put(verifyPDFFontForStrings(this.model.getFont(), pdfHelper),
                         String.format("PDF content does not contain data '%s' of font '%s'",
-                                Arrays.toString(this.model.getSearchStrings()), this.model.getFont()));
+                                this.model.getSearchStrings(), this.model.getFont()));
             }
             if (this.model.getSize() != null) {
                 validateResultsMap.put(verifyPDFContentSizeForStrings(this.model.getSize(), pdfHelper),
                         String.format("PDF content does not contain data '%s' of size '%s'",
-                                Arrays.toString(this.model.getSearchStrings()), this.model.getSize().toString()));
+                                this.model.getSearchStrings(), this.model.getSize().toString()));
             }
             if (this.model.getType() != null) {
                 validateResultsMap.put(verifyPDFContentTextTypeForStrings(this.model.getType(), pdfHelper),
                         String.format("PDF content does not contain data '%s' of type '%s'",
-                                Arrays.toString(this.model.getSearchStrings()), this.model.getType()));
+                                this.model.getSearchStrings(), this.model.getType()));
             }
             if (this.model.getImages() != null) {
                 validateResultsMap.put(verifyPDFImages(this.model.getImages(), pdfHelper),

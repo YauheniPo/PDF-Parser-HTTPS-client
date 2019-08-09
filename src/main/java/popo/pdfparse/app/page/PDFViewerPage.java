@@ -9,7 +9,11 @@ public class PDFViewerPage extends PDFParsePage {
 
     private final By pdfContentSelector = Locators.get("pdf.content");
 
+    public PDFHelper getPDFHelper(Integer pageNumber) {
+        return super.getPDFHelper(pdfContentSelector).setPageNumber(pageNumber);
+    }
+
     public PDFHelper getPDFHelper() {
-        return super.getPDFHelper(pdfContentSelector);
+        return this.getPDFHelper(pdfContentSelector);
     }
 }

@@ -91,7 +91,7 @@
             <artifactId>opencv</artifactId>
             <version>3.4.6</version>
             <scope>system</scope>
-            <systemPath>${basedir}/src/main/resources/opencv_dll/opencv-346.jar</systemPath>
+            <systemPath>${basedir}/src/main/resources/opencv/opencv-346.jar</systemPath>
         </dependency>
 
     </dependencies>

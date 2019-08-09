@@ -31,7 +31,7 @@ class TableExtractor {
     private PdfTableSettings settings;
 
     static {
-        System.load(Paths.get(System.getProperty("user.dir"), "src", "main", "resources", "opencv_dll").toString() + File.separator + "opencv_java346.dll");
+        System.load(Paths.get(System.getProperty("user.dir"), "src", "main", "resources", "opencv").toString() + File.separator + "opencv_java346.dll");
     }
 
     public TableExtractor(PdfTableSettings settings) {
